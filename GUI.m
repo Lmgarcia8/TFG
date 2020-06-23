@@ -134,6 +134,7 @@ axes(handles.pantalla);
 imshow(im);
 set(handles.botonPelo, 'UserData', im);
 set(gca, 'XTick', [], 'YTick', []);
+set(handles.guardar,'visible','on');
 end
 
 % --- BOTONES RADIO BUTTON
@@ -318,20 +319,24 @@ Xdpi = get(handles.select,'UserData');
 im = get(handles.boton3, 'UserData');
 
 %Obtengo los atributos que necesito
-stats = regionprops(im, 'Area', 'EquivDiameter', 'Perimeter','EulerNumber'); 
+stats = regionprops(im, 'Area', 'EquivDiameter', 'Perimeter','Circularity'); 
 area = stats.Area;
 diam = stats.EquivDiameter;
 perimetro = stats.Perimeter;
-euler = stats.EulerNumber;
+circular = stats.Circularity;
 
 %Cambio las unidades a cm
 pulgadas = 2.54;
 AreaCm = (area/Xdpi)*pulgadas;
 DiametroCm = (diam/Xdpi)*pulgadas;
 PerimetroCm = (perimetro/Xdpi)*pulgadas;
-EulerCm = (euler/Xdpi)*pulgadas;
+CircularCm = (circular/Xdpi)*pulgadas;
 
-datos = [AreaCm DiametroCm PerimetroCm EulerCm];
+Radio = DiametroCm/2;
+Volumen = (4/3)*pi*(Radio^3);
+Grosor = Volumen/AreaCm;
+
+datos = [AreaCm DiametroCm PerimetroCm CircularCm Grosor];
 set(handles.tabla,'data', datos);
 end
 

@@ -41,18 +41,12 @@ set(handles.imagen1, 'UserData', im1);
 set(gca, 'XTick', [], 'YTick', []);
 
 %Fecha captura
-data_date1 = getexif(fullpathname1);
-C1 = strsplit(data_date1,'\n');
-Linea1 = C1(1,8);
-Date1 = replace(Linea1, 'FileCreateDate', 'Fecha de captura');
-S1 = split(Date1,' ');
-F1 = S1(1,1);
-D1 = S1(2,1);
-C1 = S1(3,1);
-Points1 = S1(21,1);
-Numbers1 = S1(22,1);
-NewNumber1 = replace(Numbers1, ':', '-');
-Union1 = [F1,D1,C1,Points1,NewNumber1];
+data1 = imfinfo(fullpathname1);
+date1 = (data1.FileModDate);
+C1 = strsplit(date1,' ');
+fecha1 = C1(1,1);
+texto1 = 'Fecha de captura: ';
+Union1 = [texto1 fecha1];
 DateCapture1 = join(Union1);
 set(handles.fecha1,'String',DateCapture1);
 
@@ -80,18 +74,12 @@ set(handles.panel3,'visible','on');
 set(handles.panel4,'visible','on');
 
 %Fecha captura
-data_date2 = getexif(fullpathname2);
-C2 = strsplit(data_date2,'\n');
-Linea2 = C2(1,8);
-Date2 = replace(Linea2, 'FileCreateDate', 'Fecha de captura');
-S2 = split(Date2,' ');
-F2 = S2(1,1);
-D2 = S2(2,1);
-C2 = S2(3,1);
-Points2 = S2(21,1);
-Numbers2 = S2(22,1);
-NewNumber2 = replace(Numbers2, ':', '-');
-Union2 = [F2,D2,C2,Points2,NewNumber2];
+data2 = imfinfo(fullpathname2);
+date2 = (data2.FileModDate);
+C2 = strsplit(date2,' ');
+fecha2 = C2(1,1);
+texto2 = 'Fecha de captura: ';
+Union2 = [texto2 fecha2];
 DateCapture2 = join(Union2);
 set(handles.fecha2,'String',DateCapture2);
 
@@ -261,20 +249,22 @@ imErosion1 = imerode(imseg1,se);
 imDilatar1 = imdilate(imErosion1,se1);
 imRelleno1 = imfill(imDilatar1,'holes');
 
-stats1 = regionprops(imRelleno1, 'Area', 'EquivDiameter', 'Perimeter','EulerNumber'); 
+stats1 = regionprops(imRelleno1, 'Area', 'EquivDiameter', 'Perimeter','Circularity'); 
 area1 = stats1.Area;
 diam1 = stats1.EquivDiameter;
 perimetro1 = stats1.Perimeter;
-euler1 = stats1.EulerNumber;
+circular1 = stats1.Circularity;
 
 %Conversion a cm
 pulgadas = 2.54;
 AreaCm1 = (area1/Xdpi1)*pulgadas;
 DiametroCm1 = (diam1/Xdpi1)*pulgadas;
 PerimetroCm1 = (perimetro1/Xdpi1)*pulgadas;
-EulerCm1 = (euler1/Xdpi1)*pulgadas;
+CircularCm1 = (circular1/Xdpi1)*pulgadas;
 
-
+Radio1 = DiametroCm1/2;
+Volumen1 = (4/3)*pi*(Radio1^3);
+Grosor1 = Volumen1/AreaCm1;
 
 %Calculo medidas im2
 Xdpi2 = get(handles.boton2,'UserData');
@@ -288,25 +278,30 @@ imErosion2 = imerode(imseg2,se);
 imDilatar2 = imdilate(imErosion2,se1);
 imRelleno2 = imfill(imDilatar2,'holes');
 
-stats2 = regionprops(imRelleno2, 'Area', 'EquivDiameter', 'Perimeter','EulerNumber'); 
+stats2 = regionprops(imRelleno2, 'Area', 'EquivDiameter', 'Perimeter','Circularity'); 
 area2 = stats2.Area;
 diam2 = stats2.EquivDiameter;
 perimetro2 = stats2.Perimeter;
-euler2 = stats2.EulerNumber;
+circular2 = stats2.Circularity;
 
 %Conversion a cm
 pulgadas = 2.54;
 AreaCm2 = (area2/Xdpi2)*pulgadas;
 DiametroCm2 = (diam2/Xdpi2)*pulgadas;
 PerimetroCm2 = (perimetro2/Xdpi2)*pulgadas;
-EulerCm2 = (euler2/Xdpi2)*pulgadas;
+CircularCm2 = (circular2/Xdpi2)*pulgadas;
+
+Radio2 = DiametroCm2/2;
+Volumen2 = (4/3)*pi*(Radio2^3);
+Grosor2 = Volumen2/AreaCm2;
 
 Area = {AreaCm1, AreaCm2};
 Diametro = {DiametroCm1, DiametroCm2};  
 Perimetro = {PerimetroCm1, PerimetroCm2};
-Euler = {EulerCm1, EulerCm2};
+Circular = {CircularCm1, CircularCm2};
+Grosor = {Grosor1, Grosor2};
 
-datos = [Area' Diametro' Perimetro' Euler'];
+datos = [Area' Diametro' Perimetro' Circular' Grosor'];
 set(handles.tabla,'data', datos);
 end
 
